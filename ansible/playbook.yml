@@ -135,12 +135,12 @@
           Description=Backup Minecraft world data to S3
 
           [Service]
-    # Operations Best Practice: Systemd Timers over Cronjobs
-    # We use a systemd timer because it integrates well with journald logging, supports advanced
-    # scheduling capabilities, prevents overlapping executions, and provides clearer dependency handling.
           Type=oneshot
           ExecStart=/usr/local/bin/backup-minecraft.sh
 
+    # Operations Best Practice: Systemd Timers over Cronjobs
+    # We use a systemd timer because it integrates well with journald logging, supports advanced
+    # scheduling capabilities, prevents overlapping executions, and provides clearer dependency handling.
     - name: Install systemd backup timer
       ansible.builtin.copy:
         dest: /etc/systemd/system/minecraft-backup.timer
