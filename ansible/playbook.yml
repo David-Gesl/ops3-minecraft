@@ -32,6 +32,7 @@
         name: docker
         state: present
         executable: pip3
+        extra_args: --ignore-installed
 
     - name: Enable and start Docker
       ansible.builtin.systemd:
