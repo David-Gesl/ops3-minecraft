@@ -15,7 +15,7 @@
     minecraft_data_dir: "/data"
     minecraft_memory: "2G"
     minecraft_version: "1.20.4"
-    minecraft_motd: "David Gesl Ops 3 Minecraft"
+    minecraft_motd: "MESSAGE OF THE DAY David Gesl Ops 3 Minecraft"
     rcon_password: "Password123"
 
   tasks:
@@ -105,6 +105,7 @@
           - "{{ minecraft_data_dir }}:/data"
         env:
           EULA: "TRUE"
+          VERSION: "{{ minecraft_version }}"
           MEMORY: "{{ minecraft_memory }}"
           MOTD: "{{ minecraft_motd }}"
           ENABLE_RCON: "true"
