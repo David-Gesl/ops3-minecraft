@@ -27,12 +27,15 @@
         state: present
         update_cache: true
 
-    - name: Install Docker SDK for Python
-      ansible.builtin.pip:
-        name: docker
-        state: present
-        executable: pip3
-        extra_args: --ignore-installed
+    - name: Repair AWS CLI Python dependencies after package installation
+      ansible.builtin.command: >
+        dnf reinstall -y awscli python3-urllib3 python3-requests
+      changed_when: false
+
+    - name: Install Docker SDK for Python without modifying system AWS CLI dependencies
+      ansible.builtin.command: >
+        pip3 install --no-deps docker==5.0.3 websocket-client==1.7.0
+      changed_when: false
 
     - name: Enable and start Docker
       ansible.builtin.systemd:
