@@ -21,7 +21,7 @@ terraform {
       source  = "hashicorp/null"
       version = "~> 3.2"
     }
-    
+
   }
 }
 
@@ -197,6 +197,7 @@ resource "null_resource" "run_ansible" {
     aws_instance.minecraft,
     aws_ecr_repository.minecraft,
     aws_s3_bucket.world_backup,
+    aws_s3_bucket_versioning.world_backup,
     local_file.ansible_inventory
   ]
 
@@ -208,6 +209,8 @@ resource "null_resource" "run_ansible" {
   }
 
   provisioner "local-exec" {
+    working_dir = path.module
+
     command = <<EOT
       echo "Waiting for SSH to be ready on ${aws_instance.minecraft.public_ip}..."
 
@@ -233,7 +236,7 @@ resource "null_resource" "run_ansible" {
         -e 'ecr_repository_url=${aws_ecr_repository.minecraft.repository_url}' \
         -e 'image_tag=v1.0.1' \
         -e 'world_backup_bucket=${aws_s3_bucket.world_backup.bucket}' \
-        -e 'minecraft_motd=David Gesl Ops 3 Minecraft'
+        -e 'minecraft_motd=David-Gesl-Ops3-Minecraft'
     EOT
   }
 }
