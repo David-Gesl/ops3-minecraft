@@ -14,8 +14,9 @@
     minecraft_container_name: "minecraft"
     minecraft_data_dir: "/data"
     minecraft_memory: "2G"
+    minecraft_version: "1.20.4"
     minecraft_motd: "David Gesl Ops 3 Minecraft"
-    rcon_password: "change-me-for-class-demo"
+    rcon_password: "Password123"
 
   tasks:
     - name: Install runtime prerequisites
