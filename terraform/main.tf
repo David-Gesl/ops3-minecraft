@@ -16,6 +16,12 @@ terraform {
       source  = "hashicorp/local"
       version = "~> 2.5"
     }
+
+    null = {
+      source  = "hashicorp/null"
+      version = "~> 3.2"
+    }
+    
   }
 }
 
@@ -186,3 +192,48 @@ ${aws_instance.minecraft.public_ip} ansible_user=ec2-user ansible_ssh_private_ke
 EOF
 }
 
+resource "null_resource" "run_ansible" {
+  depends_on = [
+    aws_instance.minecraft,
+    aws_ecr_repository.minecraft,
+    aws_s3_bucket.world_backup,
+    local_file.ansible_inventory
+  ]
+
+  triggers = {
+    instance_id   = aws_instance.minecraft.id
+    public_ip     = aws_instance.minecraft.public_ip
+    playbook_hash = filesha256("${path.module}/../ansible/playbook.yml")
+    image_tag     = "v1.0.1"
+  }
+
+  provisioner "local-exec" {
+    command = <<EOT
+      echo "Waiting for SSH to be ready on ${aws_instance.minecraft.public_ip}..."
+
+      until ssh \
+        -o StrictHostKeyChecking=no \
+        -o UserKnownHostsFile=/dev/null \
+        -o ConnectTimeout=5 \
+        -i '${var.private_key_path}' \
+        ec2-user@${aws_instance.minecraft.public_ip} \
+        "echo SSH is ready"; do
+          echo "Still waiting for SSH..."
+          sleep 10
+      done
+
+      echo "Running Ansible playbook..."
+
+      ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook \
+        -i '${aws_instance.minecraft.public_ip},' \
+        ../ansible/playbook.yml \
+        -u ec2-user \
+        --private-key '${var.private_key_path}' \
+        -e 'aws_region=${var.aws_region}' \
+        -e 'ecr_repository_url=${aws_ecr_repository.minecraft.repository_url}' \
+        -e 'image_tag=v1.0.1' \
+        -e 'world_backup_bucket=${aws_s3_bucket.world_backup.bucket}' \
+        -e 'minecraft_motd=David Gesl Ops 3 Minecraft'
+    EOT
+  }
+}
