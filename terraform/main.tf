@@ -206,6 +206,7 @@ resource "null_resource" "run_ansible" {
     public_ip     = aws_instance.minecraft.public_ip
     playbook_hash = filesha256("${path.module}/../ansible/playbook.yml")
     image_tag     = "v1.0.1"
+    motd          = "David-Gesl-Ops3-Minecraft"
   }
 
   provisioner "local-exec" {
